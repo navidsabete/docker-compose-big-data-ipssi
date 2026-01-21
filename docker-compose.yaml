@@ -1,0 +1,11 @@
+services:
+  jupyter:
+    image: jupyter/pyspark-notebook:latest
+    container_name: jupyter_lab
+    ports:
+      - "8888:8888"          # Accès depuis le navigateur
+    volumes:
+      - ./notebooks:/home/jovyan/work   # Synchronisation avec le dossier local
+    environment:
+      - JUPYTER_ENABLE_LAB=yes          # Lance Jupyter Lab par défaut
+    restart: unless-stopped
