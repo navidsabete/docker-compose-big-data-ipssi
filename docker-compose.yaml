@@ -6,7 +6,7 @@ services:
       - "${LOCALHOST_JUPYTER_PORT}:${JUPYTER_PORT}"          # Accès depuis le navigateur
     volumes:
       - ./notebooks:/home/jovyan/work   # Synchronisation avec le dossier local
-      - ./producer:/home/jovyan/src 
+      - ./weather_flow:/home/jovyan/src 
     env_file:
       - .env
     restart: unless-stopped
