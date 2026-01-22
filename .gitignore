@@ -1,0 +1,5 @@
+*.env
+!*template*.env
+
+.ipynb_checkpoints
+*/*pycache*
