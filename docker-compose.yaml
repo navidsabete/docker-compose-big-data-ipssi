@@ -10,12 +10,16 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+    networks:
+      - big-data-network
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
+    networks:
+      - big-data-network    
   
   kafka:
     image: confluentinc/cp-kafka:7.5.0
@@ -29,7 +33,9 @@ services:
       KAFKA_LISTENERS: "${KAFKA_LISTENERS}"
       KAFKA_ADVERTISED_LISTENERS: "${KAFKA_ADVERTISED_LISTENERS}"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}"
-  
+    networks:
+      - big-data-network
+
   spark-master:
     image: apache/spark:latest
     container_name: spark-master
@@ -45,7 +51,9 @@ services:
 #      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
 #      - SPARK_SSL_ENABLED=no
     networks:
-      - spark-network
+      - big-data-network
+    volumes:
+    - ./spark-scripts:/opt/spark/work-dir
 
   spark-worker:
     image: apache/spark:latest
@@ -62,10 +70,10 @@ services:
     ports:
       - "${LOCALHOST_SPARK_WORKER_UI_PORT}:${SPARK_WORKER_UI_PORT}"   # UI
     networks:
-      - spark-network
+      - big-data-network
 
 networks:
-  spark-network:
+  big-data-network:
     driver: bridge
     
     
