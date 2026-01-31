@@ -6,18 +6,24 @@ services:
       - "${LOCALHOST_JUPYTER_PORT}:${JUPYTER_PORT}"          # Accès depuis le navigateur
     volumes:
       - ./notebooks:/home/jovyan/work   # Synchronisation avec le dossier local
-      - ./producer:/home/jovyan/src 
+      - ./weather_flow:/home/jovyan/src 
     env_file:
       - .env
     restart: unless-stopped
+    networks:
+      - big-data-network
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
+    networks:
+      - big-data-network    
   
   kafka:
     image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
     depends_on:
       - zookeeper
     ports:
@@ -27,3 +33,37 @@ services:
       KAFKA_LISTENERS: "${KAFKA_LISTENERS}"
       KAFKA_ADVERTISED_LISTENERS: "${KAFKA_ADVERTISED_LISTENERS}"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}"
+    networks:
+      - big-data-network
+
+  spark-master:
+    image: apache/spark:latest
+    container_name: spark-master
+    hostname: spark-master
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master", "--host", "spark-master"]
+    ports:
+      - "${LOCALHOST_SPARK_MASTER_PORT}:${SPARK_MASTER_PORT}"   # Spark master
+      - "${LOCALHOST_SPARK_UI_PORT}:${SPARK_UI_PORT}"   # UI
+    networks:
+      - big-data-network
+    volumes:
+      - ./spark-scripts:/opt/spark/work-dir
+      - ./ivy-cache:/tmp/.ivy2
+
+  spark-worker:
+    image: apache/spark:latest
+    container_name: spark-worker
+    hostname: spark-worker
+    depends_on:
+      - spark-master
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
+    ports:
+      - "${LOCALHOST_SPARK_WORKER_UI_PORT}:${SPARK_WORKER_UI_PORT}"   # UI
+    networks:
+      - big-data-network
+
+networks:
+  big-data-network:
+    driver: bridge
+    
+    
