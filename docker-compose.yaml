@@ -44,12 +44,6 @@ services:
     ports:
       - "${LOCALHOST_SPARK_MASTER_PORT}:${SPARK_MASTER_PORT}"   # Spark master
       - "${LOCALHOST_SPARK_UI_PORT}:${SPARK_UI_PORT}"   # UI
-#    environment:
-#      - SPARK_MODE=master
-#      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-#      - SPARK_RPC_ENCRYPTION_ENABLED=no
-#      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-#      - SPARK_SSL_ENABLED=no
     networks:
       - big-data-network
     volumes:
@@ -63,18 +57,10 @@ services:
     depends_on:
       - spark-master
     command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
-#    environment:
-#      - SPARK_MODE=worker
-#      - SPARK_MASTER=spark://spark-master:7077
-#      - SPARK_WORKER_CORES=2
-#      - SPARK_WORKER_MEMORY=2g
     ports:
       - "${LOCALHOST_SPARK_WORKER_UI_PORT}:${SPARK_WORKER_UI_PORT}"   # UI
     networks:
       - big-data-network
-#    volumes:
-#      - ./spark-scripts:/opt/spark/work-dir
-#      - ./jars:/opt/spark/jars
 
 networks:
   big-data-network:
