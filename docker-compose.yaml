@@ -53,7 +53,8 @@ services:
     networks:
       - big-data-network
     volumes:
-    - ./spark-scripts:/opt/spark/work-dir
+      - ./spark-scripts:/opt/spark/work-dir
+      - ./ivy-cache:/tmp/.ivy2
 
   spark-worker:
     image: apache/spark:latest
@@ -71,6 +72,9 @@ services:
       - "${LOCALHOST_SPARK_WORKER_UI_PORT}:${SPARK_WORKER_UI_PORT}"   # UI
     networks:
       - big-data-network
+#    volumes:
+#      - ./spark-scripts:/opt/spark/work-dir
+#      - ./jars:/opt/spark/jars
 
 networks:
   big-data-network:

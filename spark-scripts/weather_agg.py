@@ -18,19 +18,34 @@ def init_spark():
 #        .master(SPARK_MASTER_URL) \
 #        .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.1") \
 
+def kafka_read(spark):
+    schema = StructType([ 
+        StructField("temperature", DoubleType(), True), 
+        StructField("windspeed", DoubleType(), True), 
+        StructField("temp_f", DoubleType(), True), 
+        StructField("high_wind_alert", BooleanType(), True), 
+        StructField("time", StringType(), True) ])
+    raw_df = spark.read \
+            .format("kafka") \
+            .option("kafka.bootstrap.servers", "kafka:9092") \
+            .option("subscribe", "weather_transformed") \
+            .option("startingOffsets", "earliest") \
+            .load()
+    return raw_df
+    
+
 def main():
-    print(SPARK_MASTER_URL)
-    print(KAFKA_BROKER)
+    print("spark master url: ",  SPARK_MASTER_URL)
+    print("kafka broker : ", KAFKA_BROKER)
     spark = init_spark()
     print("✅ Spark session started !")
     sc = spark.sparkContext
     sc.setLogLevel("WARN")
     print("✅ Spark session started LOG WARN!")
-    # 🔥 ACTION SPARK MINIMALE
-    rdd = sc.parallelize(range(1, 1_000_000))
-    count = rdd.count()
-    print("RDD count:", count)
-
+    raw_df = kafka_read(spark)
+    # Affichage brut du message
+    raw_df.selectExpr("CAST(value AS STRING)").show(5, truncate=False)
+    
 
 if __name__ == "__main__":
     main()
