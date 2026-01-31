@@ -31,7 +31,10 @@ def kafka_read(spark):
             .option("subscribe", "weather_transformed") \
             .option("startingOffsets", "earliest") \
             .load()
-    return raw_df
+    json_df = raw_df.selectExpr("CAST(value AS STRING) as json")
+    parsed = json_df.select(from_json(col("json"), schema).alias("data")).select("data.*")
+    parsed = parsed.withColumn("event_time", col("time").cast(TimestampType()))
+    return parsed
     
 
 def main():
@@ -42,40 +45,19 @@ def main():
     sc = spark.sparkContext
     sc.setLogLevel("WARN")
     print("✅ Spark session started LOG WARN!")
-    raw_df = kafka_read(spark)
-    # Affichage brut du message
-    raw_df.selectExpr("CAST(value AS STRING)").show(5, truncate=False)
-    
+    parsed_data = kafka_read(spark)
+    agg = parsed_data.groupBy(
+        window(col("event_time"), "1 minute")
+    ).agg(
+        avg("temperature").alias("avg_temp_c"),
+        count(col("high_wind_alert")).alias("alert_count")
+        )
+    agg.show(truncate=False)
 
+    
 if __name__ == "__main__":
     main()
 
-#def main():
-#    schema = StructType([ 
-#        StructField("temperature", DoubleType(), True), 
-#        StructField("windspeed", DoubleType(), True), 
-#        StructField("temp_f", DoubleType(), True), 
-#        StructField("high_wind_alert", BooleanType(), True), 
-#        StructField("time", StringType(), True) ])
-#    
-#    raw_df = spark.readStream \
-#            .format("kafka") \
-#            .option("kafka.bootstrap.servers", KAFKA_BROKER) \
-#            .option("subscribe", "weather_transformed") \
-#            .option("startingOffsets", "earliest") \
-#            .load()
-#    
-#    json_df = raw_df.selectExpr("CAST(value AS STRING) as json") 
-#    parsed = json_df.select(from_json(col("json"), schema).alias("data")).select("data.*")
-#    parsed = parsed.withColumn("event_time", col("time").cast(TimestampType()))
-#
-#    agg = parsed.groupBy(
-#        window(col("event_time"), "1 minute")
-#    ).agg(
-#        avg("temperature").alias("avg_temp_c"),
-#        count(col("high_wind_alert")).alias("alert_count")
-#        )
-#    agg.show(truncate=False)
 #    spark.stop()
-#
+
 
