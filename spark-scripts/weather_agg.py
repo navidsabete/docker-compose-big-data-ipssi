@@ -17,9 +17,6 @@ KAFKA_BROKER = os.getenv("KAFKA_BROKER")
 # Connexion HDFS
 HDFS_URL = "http://namenode:9870"  # URL de ton NameNode
 
-#⚠️ namenode:50070 doit être remplacé par le hostname et port de ton NameNode Docker.
-#Si tu utilises une image Hadoop (pseudo-distribué), regarde le port exposé du NameNode.
-
 HDFS_USER = "root"              # utilisateur HDFS
 #HDFS_USER = "jovyan"
 HDFS_DIR = f"/user/jovyan/weather_agg"
@@ -32,9 +29,6 @@ def init_spark():
         .appName("WeatherAggregation") \
         .getOrCreate()
     return spark
-
-#        .master(SPARK_MASTER_URL) \
-#        .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.1") \
 
 def kafka_read(spark):
     schema = StructType([ 
