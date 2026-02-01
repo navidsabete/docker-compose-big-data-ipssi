@@ -18,6 +18,12 @@ echo "📦 S'assurer que le dossier existe"
 
 docker exec -it $CONTAINER mkdir -p /tmp/.ivy2
 
+echo "⏳ Waiting for NameNode UI to start..."
+until docker exec spark-master curl -s http://namenode:9870/ > /dev/null; do
+  echo "Waiting for HDFS NameNode UI ..."
+  sleep 5
+done
+
 echo "🚀 Lancement de $PY_SCRIPT dans le conteneur $CONTAINER via spark-submit..."
 
 docker exec -it $CONTAINER /opt/spark/bin/spark-submit \
