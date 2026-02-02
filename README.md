@@ -62,7 +62,10 @@ Interfaces principales :
 - HDFS - NameNode UI : http://localhost:9870/
 - Airflow UI : http://localhost:8082/
 
+---
+Des scripts Bash sont utilisés pour faciliter le lancement des traitements. Le script *run_spark.sh* permet de soumettre le job Spark au cluster (Spark Master + Workers) via spark-submit, garantissant une exécution du traitement de streaming. Un script *entrypoint.sh* est également utilisé après lancement des conteneurs pour initialiser l'environnement (dépendances) et lancer certains services.
 
+---
 ### 🔮 Améliorations possibles
 
 Automatisation du DAG Airflow
