@@ -2,6 +2,7 @@
 !*template*.env
 
 .ipynb_checkpoints
-*/*pycache*
 /*ivy-cache*
 /*hadoop*
+
+*pycache*

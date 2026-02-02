@@ -94,6 +94,28 @@ services:
       - HDFS_CONF_dfs_replication=1
     networks:
       - big-data-network
+  
+  airflow:
+    image: apache/airflow:2.7.2
+    container_name: airflow
+    restart: unless-stopped
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - _PIP_ADDITIONAL_REQUIREMENTS=kafka-python hdfs
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__WEBSERVER__WEB_SERVER_HOST=0.0.0.0
+      - AIRFLOW__WEBSERVER__WEB_SERVER_PORT=8082
+      - AIRFLOW_UID=50000
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+    ports:
+      - "8082:8082"  # Web UI Airflow
+    command: airflow standalone
+    depends_on:
+      - kafka
+      - namenode
+    networks:
+      - big-data-network
 
 networks:
   big-data-network:
