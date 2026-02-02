@@ -10,10 +10,8 @@ KAFKA_TOPIC = "weather_transformed"
 KAFKA_BROKER = "kafka:9092"
 
 # Connexion HDFS
-HDFS_URL = "http://namenode:9870"  # URL de ton NameNode
-
-HDFS_USER = "root"              # utilisateur HDFS
-#HDFS_USER = "jovyan"
+HDFS_URL = "http://namenode:9870"
+HDFS_USER = "root"
 HDFS_DIR = f"/user/jovyan/weather_agg"
 
 hdfs_client = InsecureClient(HDFS_URL, user=HDFS_USER)
