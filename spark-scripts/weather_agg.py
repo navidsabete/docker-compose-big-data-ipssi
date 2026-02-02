@@ -1,24 +1,18 @@
-import os
-import time
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col, window, avg, count
 from pyspark.sql.types import StructType, StructField, DoubleType, BooleanType, StringType, TimestampType
 from hdfs import InsecureClient
 from hdfs.util import HdfsError
 from datetime import datetime
-import json
 import csv
 import io
-import traceback
 
-SPARK_MASTER_URL = os.getenv("SPARK_MASTER_URL")
-KAFKA_BROKER = os.getenv("KAFKA_BROKER")
+KAFKA_TOPIC = "weather_transformed"
+KAFKA_BROKER = "kafka:9092"
 
 # Connexion HDFS
-HDFS_URL = "http://namenode:9870"  # URL de ton NameNode
-
-HDFS_USER = "root"              # utilisateur HDFS
-#HDFS_USER = "jovyan"
+HDFS_URL = "http://namenode:9870"
+HDFS_USER = "root"
 HDFS_DIR = f"/user/jovyan/weather_agg"
 
 hdfs_client = InsecureClient(HDFS_URL, user=HDFS_USER)
@@ -39,8 +33,8 @@ def kafka_read(spark):
         StructField("time", StringType(), True) ])
     raw_df = spark.read \
             .format("kafka") \
-            .option("kafka.bootstrap.servers", "kafka:9092") \
-            .option("subscribe", "weather_transformed") \
+            .option("kafka.bootstrap.servers", KAFKA_BROKER) \
+            .option("subscribe", KAFKA_TOPIC) \
             .option("startingOffsets", "earliest") \
             .load()
     json_df = raw_df.selectExpr("CAST(value AS STRING) as json")
@@ -50,14 +44,11 @@ def kafka_read(spark):
     
 
 def main():
-    print("spark master url: ",  SPARK_MASTER_URL)
-    print("kafka broker : ", KAFKA_BROKER)
     spark = init_spark()
     print("✅ Spark session started !")
     sc = spark.sparkContext
     sc.setLogLevel("WARN")
-    print("✅ Spark session started LOG WARN!")
-
+    print("✅ Spark LOG WARN initialized !")
     parsed_data = kafka_read(spark)
     agg = parsed_data.groupBy(
         window(col("event_time"), "1 minute")
@@ -86,7 +77,7 @@ def main():
             row["alert_count"]
         ])
 
-    print("📦 VERIFICATION DOSSIER")
+    print("📦 File check")
     try:
         hdfs_client.status(HDFS_DIR)
         print(f"✅ HDFS directory exists: {HDFS_DIR}")
@@ -106,13 +97,7 @@ def main():
         writer.write(buffer.getvalue())
 
     print("✅ CSV aggregation saved to HDFS:", hdfs_path)
-    
-    #agg.show(truncate=False)
 
-    
+
 if __name__ == "__main__":
     main()
-
-#    spark.stop()
-
-

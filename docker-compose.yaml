@@ -3,9 +3,9 @@ services:
     image: jupyter/pyspark-notebook:latest
     container_name: jupyter_lab
     ports:
-      - "${LOCALHOST_JUPYTER_PORT}:${JUPYTER_PORT}"          # Accès depuis le navigateur
+      - "${LOCALHOST_JUPYTER_PORT}:${JUPYTER_PORT}"          
     volumes:
-      - ./notebooks:/home/jovyan/work   # Synchronisation avec le dossier local
+      - ./notebooks:/home/jovyan/work   
       - ./weather_flow:/home/jovyan/src 
     env_file:
       - .env
@@ -68,15 +68,15 @@ services:
     container_name: namenode
     hostname: namenode
     ports:
-      - "9870:9870"   # UI NameNode
-      - "9000:9000"   # RPC HDFS
-      - "50070:50070" # WebHDFS (important pour InsecureClient)
+      - "${LOCALHOST_NAMENODE_UI_PORT}:${NAMENODE_UI_PORT}"   # UI NameNode
+      - "${LOCALHOST_RPC_HDFS_PORT}:${RPC_HDFS_PORT}"   # RPC HDFS
+      - "${LOCALHOST_WEB_HDFS_PORT}:${WEB_HDFS_PORT}" # WebHDFS
     volumes:
       - ./hadoop/namenode:/hadoop/dfs/name
     environment:
       - CLUSTER_NAME=bigdata-cluster
       - HDFS_CONF_dfs_replication=1
-      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - CORE_CONF_fs_defaultFS=${NAMENODE_CORE_CONF_fs_defaultFS}
     networks:
       - big-data-network
 
@@ -90,7 +90,7 @@ services:
       - ./hadoop/datanode:/hadoop/dfs/data
     environment:
       - CLUSTER_NAME=bigdata-cluster
-      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - CORE_CONF_fs_defaultFS=${NAMENODE_CORE_CONF_fs_defaultFS}
       - HDFS_CONF_dfs_replication=1
     networks:
       - big-data-network
@@ -103,13 +103,13 @@ services:
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - _PIP_ADDITIONAL_REQUIREMENTS=kafka-python hdfs
       - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
-      - AIRFLOW__WEBSERVER__WEB_SERVER_HOST=0.0.0.0
-      - AIRFLOW__WEBSERVER__WEB_SERVER_PORT=8082
-      - AIRFLOW_UID=50000
+      - AIRFLOW__WEBSERVER__WEB_SERVER_HOST=${AIRFLOW__WEBSERVER__WEB_SERVER_HOST}
+      - AIRFLOW__WEBSERVER__WEB_SERVER_PORT=${AIRFLOW__WEBSERVER__WEB_SERVER_PORT}
+      - AIRFLOW_UID=${AIRFLOW_UID}
     volumes:
       - ./airflow/dags:/opt/airflow/dags
     ports:
-      - "8082:8082"  # Web UI Airflow
+      - "${LOCALHOST_AIRFLOW_UI_PORT}:${AIRFLOW_UI_PORT}"  # Web UI Airflow
     command: airflow standalone
     depends_on:
       - kafka
