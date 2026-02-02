@@ -4,7 +4,7 @@ set -e
 
 # Charger les variables
 set -a
-source ../.env
+source .env
 set +a
 
 # Script pour lancer un job Spark dans le conteneur spark-master
@@ -25,9 +25,9 @@ until docker exec spark-master curl -s $NAMENODE_URL > /dev/null; do
   sleep 5
 done
 
-echo "🚀 Lancement de $PY_SCRIPT dans le conteneur $CONTAINER via spark-submit..."
+echo "🚀 Lancement de $SPARK_PY_SCRIPT dans le conteneur $SPARK_MASTER_CONTAINER_NAME via spark-submit..."
 
-docker exec -it $CONTAINER /opt/spark/bin/spark-submit \
+docker exec -it $SPARK_MASTER_CONTAINER_NAME /opt/spark/bin/spark-submit \
     --master $SPARK_MASTER_URL \
     --conf spark.jars.ivy=/tmp/.ivy2 \
     --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.1.1 \

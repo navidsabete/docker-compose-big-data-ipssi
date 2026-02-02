@@ -3,7 +3,7 @@ set -e
 
 # Charger les variables
 set -a
-source ../.env
+source .env
 set +a
 
 echo "📦 Installing Python dependencies..."
