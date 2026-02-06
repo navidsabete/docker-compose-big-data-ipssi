@@ -1,8 +1,7 @@
 COMPOSE = docker compose
 PROJECT_NAME = docker_compose_bd_ipssi
-SQLITE_VOLUME := $(shell docker volume ls -q | grep sqlite_data)
 
-.PHONY: all, clean, fclean, re, purge
+.PHONY: all, clean, fclean, re, prune_all
 
 all:
 	$(COMPOSE) up -d --build
@@ -15,5 +14,6 @@ fclean: clean
 
 re: fclean all
 
-purge: clean
-	docker volume rm $(SQLITE_VOLUME)
+prune_all: fclean
+	docker volume prune -f
+	docker network prune -f

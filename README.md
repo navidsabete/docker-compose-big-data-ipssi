@@ -8,7 +8,7 @@ Implémenter une architecture Big Data permettant de collecter, traiter et stock
 
 #### ⚙️ Variables d'environnement
 
-Les variables sont définis dans un fichier .env Vous trouverez le modèle on env_template.txt que vous aurez besoin de copier dans votre propre fichier .env sur votre machine. Affectez ensuite la valeur que vous souhaitez sur chaque variable.
+Les variables sont définis dans un fichier *.env*. Vous trouverez le modèle on *env.template* que vous aurez besoin de copier dans votre propre fichier *.env* sur votre machine. Affectez ensuite la valeur que vous souhaitez sur chaque variable.
 
 #### 📁 Structure du projet
 
@@ -56,6 +56,7 @@ Interfaces principales :
     - pour y accéder, consulter les logs pour récupérer le lien avec token : "*To access the server, open this file in a browser [...] Or copy and paste one of these URLs*
         http://127.0.0.1:8888/lab?token=<token>⁠ 
     "
+    - Lancer les cellules du notebook */work/weather_producer.ipynb* pour le streaming
 - Spark UI :
     - Master : http://localhost:8080/
     - Worker : http://localhost:8081/
@@ -63,7 +64,7 @@ Interfaces principales :
 - Airflow UI : http://localhost:8082/
 
 ---
-Des scripts Bash sont utilisés pour faciliter le lancement des traitements. Le script *run_spark.sh* permet de soumettre le job Spark au cluster (Spark Master + Workers) via spark-submit, garantissant une exécution du traitement de streaming. Un script *entrypoint.sh* est également utilisé après lancement des conteneurs pour initialiser l'environnement (dépendances) et lancer certains services.
+Des scripts Bash sont utilisés pour faciliter le lancement des traitements. Le script *run_spark.sh* permet de soumettre le job Spark au cluster (Spark Master + Workers) via spark-submit, garantissant une exécution du traitement de streaming. Un script *entrypoint.sh* est également utilisé après lancement des conteneurs pour initialiser l'environnement (dépendances) et lancer certains services. Vous devez lancer ces 2 scripts au début de la 3e étape.
 
 ---
 ### 🔮 Améliorations possibles
